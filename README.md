@@ -22,6 +22,7 @@ PGDATABASE=
 PGPASSWORD=
 
 ARC_KEY=
+
 ARC_ENV=development
 
 ENV_MODE=production
