@@ -2,11 +2,9 @@ import { sql } from "../config/db.js";
 
 export const getProducts = async (req, res) => {
     try {
-        await sql`
-         SELECT * FROM products
-         ORDER BY created_at DESC
-        `;
+        const products = await sql`SELECT * FROM products ORDER BY created_at DESC`;
         console.log("fetched products", products);
+
         res.status(200).json({ success: true, data: products });
     } catch (error) {
         console.error("Error fetching products:", error);
@@ -46,17 +44,18 @@ export const getProduct = async (req, res) => {
 };
 
 export const updateProduct = async (req, res) => {
-    const { id } = res.params;
+    const { id } = req.params;
     const { name, price, image } = req.body;
 
     try {
-       const updateProduct = await sql `
+        const updateProduct = await sql`
         UPDATE products
         SET name = ${name},price = ${price}, image = ${image}
         WHERE id = ${id}
+        RETURNING *
         `;
         if (updateProduct.length === 0) {
-            return res.status(404).json({ success:false, message:"Product not found"});
+            return res.status(404).json({ success: false, message: "Product not found" });
         }
         res.status(200).json({ success: true, data: updateProduct[0] });
     } catch (error) {
@@ -67,7 +66,7 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     const { id } = req.params;
-     try {
+    try {
         const deleteProduct = await sql`
         DELETE FROM products WHERE id = ${id} RETURNING *
         `;
@@ -77,6 +76,6 @@ export const deleteProduct = async (req, res) => {
         res.status(200).json({ success: true, data: deleteProduct[0] });
     } catch (error) {
         console.log("Error in delete function", error);
-        res.status(500).json({success:false, message:"INternal server error"})
-     }
- };
+        res.status(500).json({ success: false, message: "INternal server error" })
+    }
+};
